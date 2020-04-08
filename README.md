@@ -1,19 +1,17 @@
-# Kindle to Excel
-Extract vocabulary builder and clipping's data located on Kindle and create an Excel file out of that in a desired form. 
+## Kindle to Excel
+Extract vocabulary and clipping data from Kindle to an Excel file. 
 
-## Extractions
-For now script extracts vocabulary builder data which consists of words that have been searched throughout a book read.
-
-## Arguments
+### Arguments
 
 | Argument         | Type    | Default      | Help  | 
 | ---------------- | ------- | ------------ | ----- |
-| -n, --name       | String  | kindle_vocab | File name for spreadsheet | 
-| -f, --format     | -       | False        | Extract with omitted columns and tables | 
-| -p, --partition  | String  | E            | Kindle (removable) partition name | 
+| -n NAME, --name NAME       | String  | kindle_vocab | File name for spreadsheet | 
+| -p PARTITION, --partition PARTITION  | String  | E            | Kindle (removable) partition name | 
 | -h               | -       | -            | Show help | 
 
 
-## TODO
-* extractor for vocabulary builder
+### TODO
+* ~~extractor for vocabulary builder~~
 * extractor for clippings
+* partition finder assistant (maybe)
+* support custom path
