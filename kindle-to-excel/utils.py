@@ -3,23 +3,20 @@ import psutil
 import os
 
 
-def _validate_partition_name(arg_partition):
+def _validate_partition_name(partition):
     """
     Check if parition exists.
-    :param arg_partition: parition name
-    :return: True if partition exists
+    :param partition: parition name
+    :return: True if partition exists, False otherwise
     :raises: PartitionNotFoundError on partition not found
     """
     partitions = psutil.disk_partitions()
-    partition_exists = False
 
     for partition in partitions:
-        partition_name = '{}:\\'.format(arg_partition)
+        partition_name = '{}:\\'.format(partition)
         if partition_name in partition and 'removable' in partition.opts:
-            partition_exists = True
-
-    if not partition_exists:
-        raise PartitionNotFoundError(arg_partition)
+            return True
+    raise PartitionNotFoundError(partition)
 
 
 def find_file(partition):
