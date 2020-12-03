@@ -11,7 +11,6 @@ Extract vocabulary and clipping data from Kindle to an Excel file.
 
 
 ### TODO
-* ~~extractor for vocabulary builder~~
 * extractor for clippings
 * partition finder assistant (maybe)
 * support custom path
