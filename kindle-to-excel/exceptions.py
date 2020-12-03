@@ -1,4 +1,4 @@
-class PartitionExistsError(Exception):
+class PartitionNotFoundError(Exception):
     def __init__(self, *args):
         self.partition_name = args[0]
 

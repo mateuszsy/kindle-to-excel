@@ -31,25 +31,26 @@ def build_excel_workbook(vocabulary, file_name):
     for row, word in enumerate(vocabulary):
         col = 0
         for value in word:
-            worksheet.write(row+1, col, value)
+            worksheet.write(row + 1, col, value)
             col += 1
     workbook.close()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Present Kindle vocab data in a spreadsheet.')
-    parser.add_argument('-n', '--name',
-                        type=str,
-                        default='kindle_vocab',
-                        help='Spreadsheet file name')
-    parser.add_argument('-p', '--partition',
-                        type=str,
-                        default='E',
-                        help='Partition letter for kindle removable')
-    args = parser.parse_args()
-
-    utils.validate_partition_name(args.partition)  # Check if partition exists
-    vocab_path = utils.find_file(args.partition)   # Check if file exists, return path
+def _main():
+    vocab_path = utils.find_file(args.partition)
 
     extracted_vocab = extract(vocab_path)
     build_excel_workbook(extracted_vocab, args.name)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Read Kindle vocab data to Excel spreadsheet.')
+    parser.add_argument('-n', '--name',
+                        type=str,
+                        default='kindle_vocab',
+                        help='Spreadsheet name to dump data to')
+    parser.add_argument('-p', '--partition',
+                        type=str,
+                        default='E',
+                        help='Partition for kindle removable')
+    args = parser.parse_args()
