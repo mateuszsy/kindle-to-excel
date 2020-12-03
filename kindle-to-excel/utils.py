@@ -1,4 +1,4 @@
-from exceptions import PartitionExistsError
+from src.exceptions import PartitionExistsError
 import psutil
 import os
 
