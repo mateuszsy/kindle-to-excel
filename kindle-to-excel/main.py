@@ -54,3 +54,4 @@ if __name__ == '__main__':
                         default='E',
                         help='Partition for kindle removable')
     args = parser.parse_args()
+    _main()
