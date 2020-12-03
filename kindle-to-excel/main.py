@@ -4,7 +4,7 @@ import sqlite3
 import utils
 
 
-def extract(database_path):
+def extract_vocab(database_path):
     conn = sqlite3.connect(database_path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
@@ -39,8 +39,9 @@ def build_excel_workbook(vocabulary, file_name):
 def _main():
     vocab_path = utils.find_file(args.partition)
 
-    extracted_vocab = extract(vocab_path)
-    build_excel_workbook(extracted_vocab, args.name)
+    if not args.no_vocab:
+        extracted_vocab = extract_vocab(vocab_path)
+        build_excel_workbook(extracted_vocab, args.name)
 
 
 if __name__ == '__main__':
@@ -48,10 +49,19 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--name',
                         type=str,
                         default='kindle_vocab',
-                        help='Spreadsheet name to dump data to')
+                        help='Spreadsheet prefix to dump data to')
     parser.add_argument('-p', '--partition',
                         type=str,
                         default='E',
                         help='Partition for kindle removable')
+    parser.add_argument('--no-vocab',
+                        dest='no_vocab',
+                        action='store_true',
+                        help='Skip vocab file build')
+    parser.add_argument('--no-clip',
+                        dest='no_clip',
+                        action='store_true',
+                        help='Skip clippings file build')
     args = parser.parse_args()
+
     _main()
