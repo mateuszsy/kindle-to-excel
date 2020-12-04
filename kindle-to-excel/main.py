@@ -1,11 +1,47 @@
-import xlsxwriter
 import argparse
+import re
 import sqlite3
 import utils
 
 
-def extract_vocab(database_path):
-    conn = sqlite3.connect(database_path)
+def parse_clippings(clipping):
+    # Example line:
+    # Wheel of Time [05]: The Fires of Heaven (Robert Jordan)
+    book_author_regexp = r'(.*)\((.*?)\)'
+    book_author_regexp_result = re.search(book_author_regexp, clipping[0])
+    book, author = book_author_regexp_result.group(1), book_author_regexp_result.group(2)
+
+    # Example line:
+    # - Your Bookmark at location 11188 | Added on Friday, 31 May 2019 19:48:13
+    clip_type_date_regex = r'.*?\s.*?\s(.*?) .*?, (.*?)$'
+    clip_type_date_regex_result = re.search(clip_type_date_regex, clipping[1])
+    clip_type, date = clip_type_date_regex_result.group(1), clip_type_date_regex_result.group(2)
+
+    clipping = ' '.join(clipping[2:])
+
+    return [book, author, clip_type, date, clipping]
+
+
+def extract_clippings(clippings_path):
+    clippings = []
+    separator = '=========='
+    with open(clippings_path, mode='r', encoding='utf-8-sig') as file:
+        clipping_data = []
+        for line in file:
+            stripped_line = line.strip()
+            if not stripped_line:
+                continue
+
+            if stripped_line == separator:
+                clippings.append(clipping_data)
+                clipping_data = []
+            else:
+                clipping_data.append(stripped_line)
+    return clippings
+
+
+def extract_vocab(vocab_path):
+    conn = sqlite3.connect(vocab_path)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
@@ -20,35 +56,27 @@ def extract_vocab(database_path):
     return rows
 
 
-def build_excel_workbook(vocabulary, file_name):
-    workbook = xlsxwriter.Workbook('{}.xlsx'.format(file_name))
-    worksheet = workbook.add_worksheet('Vocabulary')
-
-    column_names = ['word', 'stem', 'usage', 'title', 'authors', 'lang', 'timestamp']
-    for column, column_name in enumerate(column_names):
-        worksheet.write(0, column, column_name)
-
-    for row, word in enumerate(vocabulary):
-        col = 0
-        for value in word:
-            worksheet.write(row + 1, col, value)
-            col += 1
-    workbook.close()
-
-
 def _main():
-    vocab_path = utils.find_file(args.partition)
+    vocab_path = utils.find_file(args.partition, 'system\\vocabulary\\vocab.db')
+    clip_path = utils.find_file(args.partition, 'documents\\My Clippings.txt')
 
     if not args.no_vocab:
-        extracted_vocab = extract_vocab(vocab_path)
-        build_excel_workbook(extracted_vocab, args.name)
+        vocab = extract_vocab(vocab_path)
+
+        vocab_columns = ['word', 'stem', 'usage', 'title', 'authors', 'lang', 'timestamp']
+        utils.build_excel_workbook(vocab, f'{args.name}_vocab', vocab_columns, 'Vocabulary')
+    if not args.no_clip:
+        clippings = map(parse_clippings, extract_clippings(clip_path))
+
+        clippings_columns = ['book', 'author', 'type', 'date', 'clipping']
+        utils.build_excel_workbook(clippings, f'{args.name}_clippings', clippings_columns, 'Clippings')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Read Kindle vocab data to Excel spreadsheet.')
     parser.add_argument('-n', '--name',
                         type=str,
-                        default='kindle_vocab',
+                        default='kindle',
                         help='Spreadsheet prefix to dump data to')
     parser.add_argument('-p', '--partition',
                         type=str,
